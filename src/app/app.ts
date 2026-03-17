@@ -35,7 +35,7 @@ interface RouteInfo {
 // ---------------------------------------------------------------------------
 // HARDCODED MAPBOX TOKEN
 // ---------------------------------------------------------------------------
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2FqaS0xMDIxIiwiYSI6ImNtbXVpaThiNjFwaHoycW9qOWF1dXhlb2cifQ.6wvYWcRrJ8O7KQ2vaWSUHg';
+const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2FqaS0xMDIxIiwiYSI6ImNtbXVuZHBvcTIyN3gydHMyOGl6cTZwa3kifQ.HNsHdeILLpfJRAiw0YBeHA';
 
 // ---------------------------------------------------------------------------
 // CATEGORY CONFIG
