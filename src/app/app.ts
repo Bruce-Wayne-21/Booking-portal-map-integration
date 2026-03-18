@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   computed,
@@ -33,11 +32,6 @@ interface RouteInfo {
 }
 
 // ---------------------------------------------------------------------------
-// HARDCODED MAPBOX TOKEN
-// ---------------------------------------------------------------------------
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoic2FqaS0xMDIxIiwiYSI6ImNtbXVuZHBvcTIyN3gydHMyOGl6cTZwa3kifQ.HNsHdeILLpfJRAiw0YBeHA';
-
-// ---------------------------------------------------------------------------
 // CATEGORY CONFIG
 // ---------------------------------------------------------------------------
 const CATEGORY_CONFIG: Record<
@@ -51,38 +45,38 @@ const CATEGORY_CONFIG: Record<
 };
 
 // ---------------------------------------------------------------------------
-// FACILITY SERVICE — Jaffna, Sri Lanka
+// FACILITY SERVICE — Colombo, Sri Lanka
 // ---------------------------------------------------------------------------
 @Injectable({ providedIn: 'root' })
 class FacilityService {
-  // Default user location — Jaffna Fort area
-  userLocation: [number, number] = [80.025, 9.661];
+  // Default user location — Colombo Fort
+  userLocation: [number, number] = [79.8612, 6.9271];
 
   private readonly mockFacilities: Facility[] = [
-    // Gyms — around Jaffna
-    { id: 1, name: 'Nallur PowerHouse Gym', description: 'Modern gym with free weights, cardio machines and personal trainers near Nallur Kandaswamy Temple.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop', pricePerHour: 15, isAvailable: true, coordinates: [80.0245, 9.6695] },
-    { id: 2, name: 'Jaffna Iron Core', description: 'Hardcore bodybuilding gym in the heart of Jaffna town.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=400&auto=format&fit=crop', pricePerHour: 10, isAvailable: true, coordinates: [80.0170, 9.6620] },
-    { id: 3, name: 'Chunnakam Fitness Hub', description: 'Family-friendly fitness center with yoga, pilates and swimming classes.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop', pricePerHour: 20, isAvailable: false, coordinates: [80.0520, 9.7310] },
-    { id: 4, name: 'KKS Road FitZone', description: 'Spacious two-floor gym with air-conditioned cardio section.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400&auto=format&fit=crop', pricePerHour: 12, isAvailable: true, coordinates: [80.0100, 9.6550] },
-    { id: 5, name: 'Point Pedro Athletics', description: 'HIIT and CrossFit focused gym at the northernmost tip of the island.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&auto=format&fit=crop', pricePerHour: 18, isAvailable: true, coordinates: [80.2290, 9.8310] },
+    // Gyms — around Colombo
+    { id: 1, name: 'PowerHouse Fitness Colombo 3', description: 'State-of-the-art gym with modern equipment and personal trainers near Kollupitiya.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop', pricePerHour: 15, isAvailable: true, coordinates: [79.8530, 6.9050] },
+    { id: 2, name: 'Iron Core Bambalapitiya', description: 'Hardcore bodybuilding gym with heavy weights and CrossFit section in Bambalapitiya.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=400&auto=format&fit=crop', pricePerHour: 10, isAvailable: true, coordinates: [79.8560, 6.8910] },
+    { id: 3, name: 'Zenith Health Club Wellawatte', description: 'Premium wellness center focusing on cardio and flexibility in Wellawatte.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop', pricePerHour: 20, isAvailable: false, coordinates: [79.8590, 6.8760] },
+    { id: 4, name: 'FitLife Nugegoda', description: 'Spacious gym floor with dedicated yoga and pilates studios in Nugegoda.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400&auto=format&fit=crop', pricePerHour: 12, isAvailable: true, coordinates: [79.8900, 6.8700] },
+    { id: 5, name: 'Apex Athletics Maradana', description: 'High-intensity interval training (HIIT) specialized facility near Maradana.', category: 'Gym', imageUrl: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=400&auto=format&fit=crop', pricePerHour: 18, isAvailable: true, coordinates: [79.8700, 6.9200] },
     // Conference Halls
-    { id: 6, name: 'Jaffna Public Library Hall', description: 'Historic conference space inside the iconic Jaffna Public Library.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=400&auto=format&fit=crop', pricePerHour: 150, isAvailable: true, coordinates: [80.0240, 9.6620] },
-    { id: 7, name: 'Tilko Grand Ballroom', description: 'Elegant event hall at the Tilko Jaffna City Hotel with full AV setup.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=400&auto=format&fit=crop', pricePerHour: 250, isAvailable: false, coordinates: [80.0210, 9.6580] },
-    { id: 8, name: 'YMCA Jaffna Center', description: 'Community hall perfect for workshops and seminars.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=400&auto=format&fit=crop', pricePerHour: 60, isAvailable: true, coordinates: [80.0200, 9.6640] },
-    { id: 9, name: 'Subhas Hotel Boardroom', description: 'Modern boardroom with video conferencing in central Jaffna.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=400&auto=format&fit=crop', pricePerHour: 50, isAvailable: true, coordinates: [80.0265, 9.6610] },
-    { id: 10, name: 'Heritage Grand Hall', description: 'Luxurious heritage banquet hall near Jaffna Fort.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1577416412292-747c6607f055?q=80&w=400&auto=format&fit=crop', pricePerHour: 180, isAvailable: true, coordinates: [80.0135, 9.6560] },
+    { id: 6, name: 'BMICH Main Hall', description: 'Iconic Bandaranaike Memorial International Conference Hall capable of hosting thousands.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=400&auto=format&fit=crop', pricePerHour: 150, isAvailable: true, coordinates: [79.8735, 6.9016] },
+    { id: 7, name: 'Lotus Tower Summit Room', description: 'High-altitude conference room with panoramic city views from the Lotus Tower.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=400&auto=format&fit=crop', pricePerHour: 250, isAvailable: false, coordinates: [79.8588, 6.9265] },
+    { id: 8, name: 'Galle Face Hotel Grand Ballroom', description: 'Historic ballroom at the iconic Galle Face Hotel, perfect for elegant corporate gatherings.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=400&auto=format&fit=crop', pricePerHour: 200, isAvailable: true, coordinates: [79.8465, 6.9213] },
+    { id: 9, name: 'Orion City Boardroom', description: 'Modern, tech-equipped boardroom in Orion City IT hub for corporate meetings.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=400&auto=format&fit=crop', pricePerHour: 50, isAvailable: true, coordinates: [79.8800, 6.9350] },
+    { id: 10, name: 'Cinnamon Grand Oak Room', description: 'Luxurious setting with premium catering options at Cinnamon Grand Colombo.', category: 'Conference Hall', imageUrl: 'https://images.unsplash.com/photo-1577416412292-747c6607f055?q=80&w=400&auto=format&fit=crop', pricePerHour: 180, isAvailable: true, coordinates: [79.8480, 6.9180] },
     // Swimming Pools
-    { id: 11, name: 'Jaffna University Pool', description: 'Olympic-sized pool at the University of Jaffna sports complex.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1519315901367-f34bf9150f01?q=80&w=400&auto=format&fit=crop', pricePerHour: 25, isAvailable: true, coordinates: [80.0230, 9.6840] },
-    { id: 12, name: 'Casuarina Beach Club', description: 'Beachside pool with ocean views at Casuarina Beach, Karainagar.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=400&auto=format&fit=crop', pricePerHour: 30, isAvailable: false, coordinates: [79.9010, 9.7350] },
-    { id: 13, name: 'Manipay Swim Center', description: 'Family pool with kids section in the Manipay suburb.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1530546171985-780c1df07d12?q=80&w=400&auto=format&fit=crop', pricePerHour: 20, isAvailable: true, coordinates: [80.0470, 9.7160] },
-    { id: 14, name: 'Fox Resorts Infinity Pool', description: 'Rooftop infinity pool overlooking the Jaffna Lagoon.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=400&auto=format&fit=crop', pricePerHour: 60, isAvailable: true, coordinates: [80.0180, 9.6700] },
-    { id: 15, name: 'Kokuvil Public Pool', description: 'Municipal pool open for public booking on weekends.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1600965962102-9d260a71890d?q=80&w=400&auto=format&fit=crop', pricePerHour: 15, isAvailable: true, coordinates: [80.0395, 9.6910] },
+    { id: 11, name: 'Sugathadasa Stadium Pool', description: 'Olympic-sized indoor swimming pool at Sugathadasa Stadium for professional training.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1519315901367-f34bf9150f01?q=80&w=400&auto=format&fit=crop', pricePerHour: 25, isAvailable: true, coordinates: [79.8702, 6.9455] },
+    { id: 12, name: 'SSC Colombo Pool', description: 'Members-only standard outdoor pool at the Sinhalese Sports Club with diving boards.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?q=80&w=400&auto=format&fit=crop', pricePerHour: 30, isAvailable: false, coordinates: [79.8680, 6.9050] },
+    { id: 13, name: 'Kinross Swim Club', description: 'Historic swimming club located right by the beach in Colombo 3.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1530546171985-780c1df07d12?q=80&w=400&auto=format&fit=crop', pricePerHour: 20, isAvailable: true, coordinates: [79.8550, 6.8750] },
+    { id: 14, name: 'Marino Beach Rooftop Pool', description: 'Infinity pool with stunning Indian Ocean views at Marino Beach Hotel.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=400&auto=format&fit=crop', pricePerHour: 60, isAvailable: true, coordinates: [79.8500, 6.9000] },
+    { id: 15, name: 'Royal College Pool', description: 'School-maintained large pool in Colombo 7, open for public booking on weekends.', category: 'Swimming Pool', imageUrl: 'https://images.unsplash.com/photo-1600965962102-9d260a71890d?q=80&w=400&auto=format&fit=crop', pricePerHour: 15, isAvailable: true, coordinates: [79.8620, 6.9080] },
     // Tennis Courts
-    { id: 16, name: 'Jaffna Tennis Club', description: 'Historic clay courts maintained since colonial times near the Fort.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?q=80&w=400&auto=format&fit=crop', pricePerHour: 25, isAvailable: true, coordinates: [80.0155, 9.6590] },
-    { id: 17, name: 'Nallur Sports Complex Courts', description: 'Well-lit hard courts open until 10 PM nightly.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?q=80&w=400&auto=format&fit=crop', pricePerHour: 30, isAvailable: true, coordinates: [80.0270, 9.6720] },
-    { id: 18, name: 'St. Johns College Courts', description: 'Exclusive grass courts on the school grounds, available for guest play.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1530915365347-2cc5d20fb669?q=80&w=400&auto=format&fit=crop', pricePerHour: 35, isAvailable: false, coordinates: [80.0190, 9.6660] },
-    { id: 19, name: 'Chankanai Tennis Academy', description: 'Professional coaching courts with ball machines and floodlights.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1549740059-d3e70ffc610d?q=80&w=400&auto=format&fit=crop', pricePerHour: 20, isAvailable: true, coordinates: [80.0730, 9.7470] },
-    { id: 20, name: 'Pannai Sports Ground', description: 'Community hard courts adjacent to the Pannai cricket pitch.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1560012057-4372e14c5085?q=80&w=400&auto=format&fit=crop', pricePerHour: 22, isAvailable: true, coordinates: [80.0350, 9.6770] },
+    { id: 16, name: 'SLTA Courts Colombo', description: 'Sri Lanka Tennis Association main clay and hard courts in Colombo 7.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?q=80&w=400&auto=format&fit=crop', pricePerHour: 25, isAvailable: true, coordinates: [79.8615, 6.9120] },
+    { id: 17, name: "Women's International Club", description: 'Well-maintained grass and clay courts in a quiet Colombo 7 neighbourhood.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a631d6?q=80&w=400&auto=format&fit=crop', pricePerHour: 30, isAvailable: true, coordinates: [79.8650, 6.9100] },
+    { id: 18, name: 'Gymkhana Club Courts', description: 'Exclusive Colombo Gymkhana Club courts available for guest bookings.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1530915365347-2cc5d20fb669?q=80&w=400&auto=format&fit=crop', pricePerHour: 35, isAvailable: false, coordinates: [79.8580, 6.9150] },
+    { id: 19, name: 'Nugegoda Tennis Academy', description: 'Training-focused courts with floodlights for night play in Nugegoda.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1549740059-d3e70ffc610d?q=80&w=400&auto=format&fit=crop', pricePerHour: 20, isAvailable: true, coordinates: [79.8950, 6.8720] },
+    { id: 20, name: 'Colombo Colts Cricket & Tennis', description: 'Hard courts adjacent to the Colombo Colts Cricket Club grounds.', category: 'Tennis Court', imageUrl: 'https://images.unsplash.com/photo-1560012057-4372e14c5085?q=80&w=400&auto=format&fit=crop', pricePerHour: 22, isAvailable: true, coordinates: [79.8670, 6.8900] },
   ];
 
   getFacilities(): Facility[] {
@@ -137,12 +131,32 @@ class FacilityService {
   template: `
     <div class="min-h-screen bg-slate-50 font-sans text-slate-800">
 
+      <!-- ── Token Modal ── -->
+      @if (!isTokenProvided()) {
+        <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="bg-indigo-600 p-2 rounded-xl"><svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+              <h2 class="text-2xl font-bold text-slate-800">Welcome to BookIt Colombo!</h2>
+            </div>
+            <p class="text-slate-600 mb-6 text-sm leading-relaxed">To experience the full interactive map features of this demo, please provide a Mapbox Access Token. You can get a free one at <a href="https://mapbox.com" target="_blank" rel="noopener" class="text-indigo-600 underline">mapbox.com</a>.</p>
+            <label for="token-input" class="sr-only">Mapbox Access Token</label>
+            <input id="token-input" type="text" [(ngModel)]="tempToken" placeholder="pk.eyJ1I..."
+                   class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all mb-4 outline-none text-sm font-mono">
+            <div class="flex gap-3">
+              <button (click)="submitToken()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors text-sm shadow-md">Enable Maps</button>
+              <button (click)="skipToken()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 rounded-xl transition-colors text-sm">Skip (List Only)</button>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- ── Header ── -->
       <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
           <div class="flex items-center gap-2 shrink-0">
             <div class="bg-indigo-600 p-1.5 rounded-lg"><svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
-            <span class="text-xl font-bold text-slate-800 tracking-tight hidden md:block">BookIt Jaffna</span>
+            <span class="text-xl font-bold text-slate-800 tracking-tight hidden md:block">BookIt Colombo</span>
           </div>
           <div class="flex-1 max-w-2xl flex items-center gap-2">
             <div class="relative flex-1">
@@ -164,7 +178,7 @@ class FacilityService {
             <button (click)="setViewMode('list')" [class.bg-white]="viewMode() === 'list'" [class.shadow-sm]="viewMode() === 'list'" [attr.aria-pressed]="viewMode() === 'list'" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 transition-all flex items-center gap-1.5">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>List
             </button>
-            <button (click)="setViewMode('map')" [class.bg-white]="viewMode() === 'map'" [class.shadow-sm]="viewMode() === 'map'" [attr.aria-pressed]="viewMode() === 'map'" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 transition-all flex items-center gap-1.5">
+            <button (click)="setViewMode('map')" [class.bg-white]="viewMode() === 'map'" [class.shadow-sm]="viewMode() === 'map'" [attr.aria-pressed]="viewMode() === 'map'" [disabled]="!isTokenProvided()" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>Map
             </button>
           </div>
@@ -181,8 +195,8 @@ class FacilityService {
               <div class="mb-6 bg-indigo-900 rounded-3xl overflow-hidden relative shadow-xl">
                 <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop" alt="" role="presentation" class="absolute inset-0 w-full h-full object-cover opacity-20">
                 <div class="relative z-10 p-8 md:p-12">
-                  <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-3">Explore Jaffna Facilities</h2>
-                  <p class="text-indigo-100 text-base md:text-lg max-w-2xl">Book premium gyms, halls, pools &amp; courts across the Jaffna peninsula.</p>
+                  <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-3">Explore Colombo Facilities</h2>
+                  <p class="text-indigo-100 text-base md:text-lg max-w-2xl">Book premium gyms, halls, pools &amp; courts across Colombo city.</p>
                 </div>
               </div>
               <div class="mb-5 bg-white rounded-2xl border border-slate-200 p-4 flex flex-wrap items-center gap-4 shadow-sm">
@@ -209,7 +223,7 @@ class FacilityService {
                       <div class="flex items-center gap-1 text-slate-500 text-xs mb-3"><svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>{{getDistance(facility)}} km away</div>
                       <div class="mt-auto flex items-center justify-between">
                         <div class="text-indigo-600 font-extrabold text-lg">\${{facility.pricePerHour}}<span class="text-xs font-normal text-slate-500">/hr</span></div>
-                        <button (click)="flyToFacility($event, facility)" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1" aria-label="Show on map"><svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>Map</button>
+                        @if (isTokenProvided()) {<button (click)="flyToFacility($event, facility)" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1" aria-label="Show on map"><svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>Map</button>}
                       </div>
                     </div>
                   </article>
@@ -268,7 +282,7 @@ class FacilityService {
               </div>
             }
 
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-xs text-slate-500 bg-white/80 backdrop-blur px-3 py-1 rounded-full border border-slate-200 shadow-sm">{{filteredFacilities().length}} facilities in Jaffna</div>
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-xs text-slate-500 bg-white/80 backdrop-blur px-3 py-1 rounded-full border border-slate-200 shadow-sm">{{filteredFacilities().length}} facilities in Colombo</div>
           }
         </div>
 
@@ -291,8 +305,8 @@ class FacilityService {
                     <div class="text-3xl font-extrabold text-indigo-600 mb-0.5">\${{selectedFacility()?.pricePerHour}}</div><div class="text-slate-500 text-sm mb-5">per hour</div>
                     <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm" [disabled]="!selectedFacility()?.isAvailable">{{selectedFacility()?.isAvailable ? 'Book Now' : 'Join Waitlist'}}</button>
                     <hr class="my-4 border-slate-200">
-                    <button (click)="getDirectionsForDetail()" [disabled]="isLoadingRoute()" class="w-full bg-white border-2 border-slate-200 hover:border-indigo-500 text-slate-700 hover:text-indigo-600 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed mb-2">@if (isLoadingRoute()) {<svg class="animate-spin h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Getting route...} @else {<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>{{detailRouteInfo() ? detailRouteInfo()!.distanceKm + ' km · ' + detailRouteInfo()!.durationMin + ' min' : 'Get Directions'}}}</button>
-                    <button (click)="showLocalizedMap()" class="w-full bg-white border-2 border-slate-200 hover:border-indigo-500 text-slate-700 hover:text-indigo-600 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>{{showMiniMap() ? 'Hide Map' : 'Venue Map'}}</button>
+                    <button (click)="getDirectionsForDetail()" [disabled]="isLoadingRoute() || !isTokenProvided()" class="w-full bg-white border-2 border-slate-200 hover:border-indigo-500 text-slate-700 hover:text-indigo-600 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed mb-2">@if (isLoadingRoute()) {<svg class="animate-spin h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Getting route...} @else {<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>{{detailRouteInfo() ? detailRouteInfo()!.distanceKm + ' km · ' + detailRouteInfo()!.durationMin + ' min' : 'Get Directions'}}}</button>
+                    <button (click)="showLocalizedMap()" [disabled]="!isTokenProvided()" class="w-full bg-white border-2 border-slate-200 hover:border-indigo-500 text-slate-700 hover:text-indigo-600 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>{{showMiniMap() ? 'Hide Map' : 'Venue Map'}}</button>
                   </div>
                   @if (showMiniMap()) {<div class="rounded-3xl overflow-hidden shadow-sm border border-slate-200 h-56 relative bg-slate-100"><div id="mini-map" class="absolute inset-0 w-full h-full"></div></div>}
                 </div>
@@ -304,7 +318,7 @@ class FacilityService {
     </div>
   `,
 })
-export class App implements OnInit, AfterViewInit {
+export class App implements OnInit {
   private facilityService = inject(FacilityService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -313,7 +327,7 @@ export class App implements OnInit, AfterViewInit {
   selectedCategory = 'All';
   maxPrice = 250;
   radiusKm = 30;
-  viewMode = signal<'list' | 'map'>('map');
+  viewMode = signal<'list' | 'map'>('list');
   selectedFacility = signal<Facility | null>(null);
   activeCategoryFilters = signal<string[]>(['Gym', 'Conference Hall', 'Swimming Pool', 'Tennis Court']);
 
@@ -333,7 +347,8 @@ export class App implements OnInit, AfterViewInit {
   });
 
   tempToken = '';
-  isTokenProvided = signal(true);
+  mapboxToken = '';
+  isTokenProvided = signal(false);
   isMapboxLoaded = signal(false);
   mapInstance: unknown = null;
   miniMapInstance: unknown = null;
@@ -362,8 +377,6 @@ export class App implements OnInit, AfterViewInit {
 
   ngOnInit() { this.facilities.set(this.facilityService.getFacilities()); }
 
-  ngAfterViewInit() { this.loadMapboxScripts(); }
-
   getDistance(f: Facility) { return this.facilityService.calculateDistance(this.facilityService.userLocation, f.coordinates); }
   getCategoryConfig(c: Facility['category']) { return CATEGORY_CONFIG[c]; }
 
@@ -372,7 +385,7 @@ export class App implements OnInit, AfterViewInit {
   onMapFilterChange() { this.cdr.markForCheck(); this.renderMarkers(); this.updateRadiusCircle(); }
   toggleCategoryFilter(cat: string) { const c = this.activeCategoryFilters(); if (c.includes(cat)) { if (c.length > 1) this.activeCategoryFilters.set(c.filter(x => x !== cat)); } else { this.activeCategoryFilters.set([...c, cat]); } this.renderMarkers(); }
 
-  setViewMode(mode: 'list' | 'map') { this.viewMode.set(mode); this.cdr.markForCheck(); if (mode === 'map' && this.isMapboxLoaded()) setTimeout(() => this.ensureMapReady(), 150); }
+  setViewMode(mode: 'list' | 'map') { if (mode === 'map' && !this.isTokenProvided()) return; this.viewMode.set(mode); this.cdr.markForCheck(); if (mode === 'map' && this.isMapboxLoaded()) setTimeout(() => this.ensureMapReady(), 150); }
 
   private ensureMapReady() {
     const c = document.getElementById('main-map');
@@ -389,7 +402,7 @@ export class App implements OnInit, AfterViewInit {
   // ── Directions (from current GPS) ──
   private async fetchRoute(from: [number, number], to: [number, number]): Promise<{ info: RouteInfo; coords: [number, number][] } | null> {
     const fac = this.selectedFacility() ?? this.routeFacilityRef;
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from[0]},${from[1]};${to[0]},${to[1]}?geometries=geojson&access_token=${MAPBOX_TOKEN}`;
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${from[0]},${from[1]};${to[0]},${to[1]}?geometries=geojson&access_token=${this.mapboxToken}`;
     const res = await fetch(url);
     const data = await res.json() as { routes?: Array<{ distance: number; duration: number; geometry: { coordinates: [number, number][] } }> };
     if (!data.routes?.[0]) return null;
@@ -493,12 +506,12 @@ export class App implements OnInit, AfterViewInit {
   }
 
   // ── Script loading ──
-  private loadMapboxScripts() {
+  private loadMapboxScripts(token: string) {
     const win = window as unknown as { mapboxgl?: { accessToken: string } };
-    if (document.querySelector('script[src*="mapbox-gl"]') && win.mapboxgl) { win.mapboxgl.accessToken = MAPBOX_TOKEN; this.isMapboxLoaded.set(true); setTimeout(() => this.ensureMapReady(), 200); return; }
+    if (document.querySelector('script[src*="mapbox-gl"]') && win.mapboxgl) { win.mapboxgl.accessToken = token; this.isMapboxLoaded.set(true); setTimeout(() => this.ensureMapReady(), 200); return; }
     const link = document.createElement('link'); link.href = 'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css'; link.rel = 'stylesheet'; document.head.appendChild(link);
     const script = document.createElement('script'); script.src = 'https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js';
-    script.onload = () => { (window as unknown as { mapboxgl: { accessToken: string } }).mapboxgl.accessToken = MAPBOX_TOKEN; this.isMapboxLoaded.set(true); this.cdr.markForCheck(); setTimeout(() => this.ensureMapReady(), 200); };
+    script.onload = () => { (window as unknown as { mapboxgl: { accessToken: string } }).mapboxgl.accessToken = token; this.isMapboxLoaded.set(true); this.cdr.markForCheck(); setTimeout(() => this.ensureMapReady(), 200); };
     document.head.appendChild(script);
   }
 
@@ -600,8 +613,21 @@ export class App implements OnInit, AfterViewInit {
     } catch (e) { console.error('Mini-map error:', e); }
   }
 
-  submitToken() {} // no-op — token hardcoded
-  skipToken() {}   // no-op — token hardcoded
+  submitToken() {
+    const t = this.tempToken.trim();
+    if (t.length > 10) {
+      this.mapboxToken = t;
+      this.isTokenProvided.set(true);
+      this.setViewMode('map');
+      this.loadMapboxScripts(t);
+    } else {
+      alert('Please enter a valid Mapbox token.');
+    }
+  }
+
+  skipToken() {
+    this.isTokenProvided.set(true);
+  }
 }
 
 // ---------------------------------------------------------------------------
